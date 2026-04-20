@@ -401,15 +401,48 @@ def get_gpu_info():
     vram = ""
     adapter_ram = selected_gpu.get('AdapterRAM', '')
     
+    # Identifica o VRAM real via Registro do Windows (evita limite de 4GB do WMI)
+    try:
+        base_key = r"SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}"
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, base_key) as key:
+            for i in range(256):
+                try:
+                    sub_key_name = winreg.EnumKey(key, i)
+                    with winreg.OpenKey(key, sub_key_name) as sub_key:
+                        try:
+                            driver_desc = winreg.QueryValueEx(sub_key, "DriverDesc")[0]
+                            if driver_desc == gpu_name:
+                                try:
+                                    # Pega o valor em 64 bits se disponivel
+                                    mem_size = winreg.QueryValueEx(sub_key, "HardwareInformation.qwMemorySize")[0]
+                                    adapter_ram = str(mem_size)
+                                    break
+                                except FileNotFoundError:
+                                    try:
+                                        mem_size_bytes = winreg.QueryValueEx(sub_key, "HardwareInformation.MemorySize")[0]
+                                        if isinstance(mem_size_bytes, bytes):
+                                            mem_size = int.from_bytes(mem_size_bytes, "little")
+                                        else:
+                                            mem_size = mem_size_bytes
+                                        
+                                        # So atualiza caso o adapter_ram esteja negativo (bug WMI) ou vazio
+                                        if not adapter_ram or int(adapter_ram) < 0 or int(adapter_ram) == 4293918720:
+                                            adapter_ram = str(mem_size)
+                                        break
+                                    except FileNotFoundError:
+                                        pass
+                        except FileNotFoundError:
+                            pass
+                except OSError:
+                    break
+    except Exception:
+        pass
+    
     # Detecta se é GPU integrada Intel
     is_intel_integrated = 'Intel' in gpu_name and any(x in gpu_name for x in ['HD Graphics', 'UHD Graphics', 'Iris'])
     
     # Detecta se é GPU integrada AMD (Ryzen)
     is_amd_integrated = 'AMD' in gpu_name and 'Radeon' in gpu_name and 'Graphics' in gpu_name and not any(x in gpu_name for x in ['RX', 'HD', 'R7', 'R9'])
-    
-    # Correção pontual: AMD RX 580 2048SP (Haoqing) tem 8 GB GDDR5, mas o WMI
-    # limita AdapterRAM a ~4 GB por ser um campo de 32 bits (bug histórico do Windows).
-    RX580_2048SP_VRAM_GB = 8
     
     if adapter_ram:
         try:
@@ -462,6 +495,7 @@ def get_gpu_info():
             pass
     
     # Correção específica: RX 580 2048SP da Haoqing tem 8 GB mas o WMI reporta ~4 GB
+    RX580_2048SP_VRAM_GB = 8
     if 'RX 580 2048SP' in gpu_name and vram and '4 GB' in vram:
         vram = f"{RX580_2048SP_VRAM_GB} GB VRAM"
     

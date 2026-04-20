@@ -1,0 +1,22 @@
+====================================================
+ TUTORIAL DE INSTALAÇÃO RÁPIDA - BLUEPC
+====================================================
+
+Bem-vindo! Siga estes 3 passos simples para gerar seu executável do BluePC:
+
+1. REQUISITO PRÉVIO:
+   O seu computador precisa ter o Python instalado. Se não tiver, baixe no site (python.org) 
+   e LEBRE-SE de marcar a caixinha "Add Python to PATH" na primeira tela de instalação!
+
+2. GERAR O EXECUTÁVEL:
+   - Clique com o BOTÃO DIREITO no arquivo "criar_executavel.bat"
+   - Escolha a opção "Executar como Administrador"
+   - O script fará tudo sozinho: vai encontrar o Python, baixar as bibliotecas necessárias e compilar o código.
+
+3. PRONTO!
+   Quando a tela preta terminar, ela dirá "Sucesso". 
+   Pode fechar a tela. Uma nova pasta chamada "dist" terá sido criada.
+   Lá dentro estará o seu oficial e prontinho "BluePC.exe"! 
+   Só dar dois cliques nele e usar.
+
+Dica: Se quiser atualizar o programa depois, é só apagar o "BluePC.exe" antigo e rodar o passo 2 novamente!
