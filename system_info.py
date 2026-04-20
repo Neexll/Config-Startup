@@ -407,6 +407,10 @@ def get_gpu_info():
     # Detecta se é GPU integrada AMD (Ryzen)
     is_amd_integrated = 'AMD' in gpu_name and 'Radeon' in gpu_name and 'Graphics' in gpu_name and not any(x in gpu_name for x in ['RX', 'HD', 'R7', 'R9'])
     
+    # Correção pontual: AMD RX 580 2048SP (Haoqing) tem 8 GB GDDR5, mas o WMI
+    # limita AdapterRAM a ~4 GB por ser um campo de 32 bits (bug histórico do Windows).
+    RX580_2048SP_VRAM_GB = 8
+    
     if adapter_ram:
         try:
             vram_bytes = int(adapter_ram)
@@ -456,6 +460,10 @@ def get_gpu_info():
                     vram = f"{vram_gb:.0f} GB VRAM"
         except:
             pass
+    
+    # Correção específica: RX 580 2048SP da Haoqing tem 8 GB mas o WMI reporta ~4 GB
+    if 'RX 580 2048SP' in gpu_name and vram and '4 GB' in vram:
+        vram = f"{RX580_2048SP_VRAM_GB} GB VRAM"
     
     # Se não conseguiu obter VRAM e é GPU integrada AMD, usa valor padrão
     if not vram and is_amd_integrated:
