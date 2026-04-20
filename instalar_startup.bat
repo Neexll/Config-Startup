@@ -5,7 +5,7 @@ echo ========================================
 echo.
 
 echo Instalando dependencias...
-pip install psutil
+pip install -r "%~dp0requirements.txt"
 
 echo.
 echo Adicionando ao startup do Windows...

@@ -14,7 +14,7 @@ if %errorLevel% neq 0 (
     exit /b 1
 )
 
-set EXE_PATH=%~dp0BluePC.exe
+set EXE_PATH=%~dp0dist\BluePC.exe
 
 echo Copiando executavel para a pasta do programa...
 if not exist "%PROGRAMFILES%\BluePC" mkdir "%PROGRAMFILES%\BluePC"
